@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -64,7 +63,7 @@ HTML
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased">
 
-  <!-- INCOLLA QUI IL TUO LINK DI MAKE.COM SE VUOI USARE L'ESTRATTORE AUTOMATICO -->
+  <!-- WEBHOOK MAKE.COM -->
   <script>
     const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/pldp5r3q9rw1p4ckgr58qdb1wauqyajh';
   </script>
@@ -147,7 +146,7 @@ HTML
             <i data-lucide="sparkles" class="w-6 h-6"></i>
           </div>
           <h2 class="text-2xl font-serif-title font-bold text-gray-900">Importa Ricetta dai Social</h2>
-          <p class="text-sm text-brand-muted">Incolla il link di un post o video da Instagram, Facebook o TikTok per estrarre automaticamente ingredienti e tempi!</p>
+          <p class="text-sm text-brand-muted">Incolla il link di un post o video per estrarre automaticamente ingredienti e tempi!</p>
         </div>
 
         <form id="import-form" onsubmit="handleImport(event)" class="space-y-4">
@@ -172,7 +171,7 @@ HTML
       </div>
     </section>
 
-    <!-- DETTAGLIO RICETTA MODALE/VISTA -->
+    <!-- DETTAGLIO RICETTA MODALE -->
     <div id="recipe-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
       <div class="bg-brand-card rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-brand-border shadow-2xl relative">
         <button onclick="closeModal()" class="absolute top-4 right-4 z-10 w-9 h-9 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-md transition">
@@ -236,7 +235,7 @@ HTML
           </div>
 
           <div>
-            <label class="block text-xs font-semibold uppercase text-brand-muted mb-1">Ingredienti (uno per riga, es: 200g Farina)</label>
+            <label class="block text-xs font-semibold uppercase text-brand-muted mb-1">Ingredienti (uno per riga)</label>
             <textarea id="form-ingredients" rows="4" required class="w-full px-3 py-2 border border-brand-border rounded-lg text-sm bg-brand-bg/30"></textarea>
           </div>
 
@@ -273,7 +272,7 @@ HTML
   </footer>
 
   <script>
-    // DATA STORE
+    // DATA STORE CORRETTO
     let recipes = JSON.parse(localStorage.getItem('chefvault_recipes')) || [
       {
         id: '1',
@@ -287,16 +286,16 @@ HTML
         ingredients: [
           '320g Spaghetti',
           '150g Guanciale di maiale',
-          '4 Tuarli d\'uovo freschi',
+          "4 Tuorli d'uovo freschi",
           '50g Pecorino Romano DOP grattugiato',
           'q.b. Pepe nero macinato al momento'
         ],
         steps: [
           'Tagliare il guanciale a striscioline e rosolarlo in padella a fuoco medio senza olio fino a renderlo croccante.',
-          'Mantenere una pentola d\'acqua bollente salata e cuocere gli spaghetti al dente.',
-          'In una ciotola, sbattere i tuorli con il pecorino ed un'abbondante macinata di pepe fino ad ottenere una crema densa.',
-          'Scolare la pasta conservando un po\' di acqua di cottura e saltarla un minuto nella padella con il guanciale.',
-          'Togliere dal fuoco, versare il composto d\'uovo e mantecare energicamente aggiungendo acqua di cottura se necessario per creare la crema.'
+          "Mantenere una pentola d'acqua bollente salata e cuocere gli spaghetti al dente.",
+          "In una ciotola, sbattere i tuorli con il pecorino ed un'abbondante macinata di pepe fino ad ottenere una crema densa.",
+          "Scolare la pasta conservando un po' di acqua di cottura e saltarla un minuto nella padella con il guanciale.",
+          "Togliere dal fuoco, versare il composto d'uovo e mantecare energicamente aggiungendo acqua di cottura se necessario per creare la crema."
         ]
       }
     ];
@@ -404,7 +403,7 @@ HTML
       }
     }
 
-    // OPEN RECIPE MODAL WITH PORTION CALCULATOR
+    // OPEN RECIPE MODAL
     function openRecipe(id) {
       const r = recipes.find(x => x.id === id);
       if (!r) return;
@@ -428,19 +427,6 @@ HTML
         </div>
 
         <div class="p-6 sm:p-8 space-y-8">
-          <!-- PORTION CALCULATOR -->
-          <div class="bg-emerald-50/60 p-4 rounded-xl border border-emerald-100 flex items-center justify-between">
-            <div class="flex items-center space-x-2 text-brand-green font-semibold text-sm">
-              <i data-lucide="users" class="w-4 h-4"></i>
-              <span>Porzioni da preparare:</span>
-            </div>
-            <div class="flex items-center space-x-3">
-              <button onclick="updateServings('${r.id}', -1)" class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-brand-green font-bold hover:bg-gray-50 flex items-center justify-center">-</button>
-              <span id="current-servings" class="font-bold text-gray-800 text-base">${r.servings || 4}</span>
-              <button onclick="updateServings('${r.id}', 1)" class="w-8 h-8 rounded-lg bg-white border border-gray-200 text-brand-green font-bold hover:bg-gray-50 flex items-center justify-center">+</button>
-            </div>
-          </div>
-
           <!-- INGREDIENTI -->
           <div class="space-y-4">
             <h3 class="text-lg font-serif-title font-bold text-gray-900 border-b border-brand-border pb-2 flex items-center justify-between">
@@ -493,128 +479,16 @@ HTML
       try {
         let newRecipe;
         
-        // Se l'utente ha configurato il Webhook di Make.com
-        if (MAKE_WEBHOOK_URL && MAKE_WEBHOOK_URL !== 'INSERISCI_QUI_IL_TUO_WEBHOOK_URL_DI_MAKE') {
+        if (MAKE_WEBHOOK_URL) {
           const res = await fetch(MAKE_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: url })
           });
-          newRecipe = await res.json();
-        } else {
-          // Fallback di simulazione se l'URL non è ancora inserito
-          await new Promise(r => setTimeout(r, 2000));
-          newRecipe = {
-            id: Date.now().toString(),
-            title: 'Ricetta Importata da Link Social',
-            category: 'Primi',
-            prepTime: '15 min',
-            cookTime: '20 min',
-            servings: 4,
-            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-            favorite: false,
-            ingredients: ['350g Pasta', '200g Pomodori', 'q.b. Olio e Sale', 'Qualche foglia di Basilico'],
-            steps: ['Estratto automaticamente dal post!', 'Cuocere la pasta e saltarla in padella col condimento.']
-          };
-        }
-
-        recipes.unshift(newRecipe);
-        saveRecipes();
-        document.getElementById('import-form').reset();
-        switchTab('recipes');
-        openRecipe(newRecipe.id);
-
-      } catch (err) {
-        alert("Errore nell'estrazione della ricetta. Verificare l'URL del Webhook.");
-      } finally {
-        loading.classList.add('hidden');
-        submitBtn.classList.remove('hidden');
-      }
-    }
-
-    // MANUAL RECIPE MODAL
-    function openManualModal() {
-      document.getElementById('manual-form').reset();
-      document.getElementById('form-id').value = '';
-      document.getElementById('manual-modal').classList.remove('hidden');
-    }
-
-    function closeManualModal() {
-      document.getElementById('manual-modal').classList.add('hidden');
-    }
-
-    function saveManualRecipe(e) {
-      e.preventDefault();
-      const id = document.getElementById('form-id').value || Date.now().toString();
-      const title = document.getElementById('form-title').value;
-      const category = document.getElementById('form-category').value;
-      const servings = parseInt(document.getElementById('form-servings').value) || 4;
-      const prepTime = document.getElementById('form-prep').value || '10 min';
-      const cookTime = document.getElementById('form-cook').value || '15 min';
-      const image = document.getElementById('form-image').value;
-      const ingredients = document.getElementById('form-ingredients').value.split('\n').filter(i => i.trim() !== '');
-      const steps = document.getElementById('form-steps').value.split('\n').filter(s => s.trim() !== '');
-
-      const existingIndex = recipes.findIndex(r => r.id === id);
-      const newRecipe = { id, title, category, servings, prepTime, cookTime, image, ingredients, steps, favorite: false };
-
-      if (existingIndex >= 0) {
-        recipes[existingIndex] = newRecipe;
-      } else {
-        recipes.unshift(newRecipe);
-      }
-
-      saveRecipes();
-      closeManualModal();
-      renderRecipes();
-    }
-
-    function deleteRecipe(id) {
-      if (confirm('Sei sicuro di voler eliminare questa ricetta dal tuo archivio?')) {
-        recipes = recipes.filter(r => r.id !== id);
-        saveRecipes();
-        renderRecipes();
-      }
-    }
-
-    function saveRecipes() {
-      localStorage.setItem('chefvault_recipes', JSON.stringify(recipes));
-    }
-
-    // BACKUP & RESTORE
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `chefvault_backup_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    function importDataTrigger() {
-      document.getElementById('import-file').click();
-    }
-
-    function importData(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const imported = JSON.parse(evt.target.result);
-          if (Array.isArray(imported)) {
-            recipes = imported;
-            saveRecipes();
-            renderRecipes();
-            alert('Backup ripristinato con successo!');
-          }
-        } catch (err) {
-          alert('File JSON non valido.');
-        }
-      };
-      reader.readAsText(file);
-    }
-  </script>
-</body>
-</html>
+          
+          const rawText = await res.text();
+          try {
+            newRecipe = JSON.parse(rawText);
+          } catch (pErr) {
+            // Pulisce eventuali blocchi di codice markdown se presenti
+            const cleanText = rawText.replace(/```json/g, '').replace(/
