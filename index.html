@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Il Mio Ricettario Privato | Chef Vault</title>
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
   <!-- Google Fonts: Inter e Playfair Display -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="[https://fonts.googleapis.com](https://fonts.googleapis.com)">
+  <link rel="preconnect" href="[https://fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin>
+  <link href="[https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap)" rel="stylesheet">
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
 
   <script>
     tailwind.config = {
@@ -65,7 +65,7 @@
 
   <!-- WEBHOOK MAKE.COM -->
   <script>
-    const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/pldp5r3q9rw1p4ckgr58qdb1wauqyajh';
+    const MAKE_WEBHOOK_URL = '[https://hook.eu1.make.com/pldp5r3q9rw1p4ckgr58qdb1wauqyajh](https://hook.eu1.make.com/pldp5r3q9rw1p4ckgr58qdb1wauqyajh)';
   </script>
 
   <!-- NAVBAR -->
@@ -154,7 +154,7 @@
             <label class="block text-xs font-semibold uppercase text-brand-muted mb-1">URL del Post o Video</label>
             <div class="relative">
               <i data-lucide="globe" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input type="url" id="import-url" required placeholder="https://www.instagram.com/p/... o TikTok link" class="w-full pl-10 pr-4 py-3 border border-brand-border rounded-xl text-sm focus:ring-2 focus:ring-brand-green/30 focus:outline-none bg-brand-bg/30">
+              <input type="url" id="import-url" required placeholder="[https://www.instagram.com/p/](https://www.instagram.com/p/)... o TikTok link" class="w-full pl-10 pr-4 py-3 border border-brand-border rounded-xl text-sm focus:ring-2 focus:ring-brand-green/30 focus:outline-none bg-brand-bg/30">
             </div>
           </div>
 
@@ -281,7 +281,7 @@
         prepTime: '10 min',
         cookTime: '15 min',
         servings: 4,
-        image: 'https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80',
+        image: '[https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80)',
         favorite: true,
         ingredients: [
           '320g Spaghetti',
@@ -351,144 +351,7 @@
             <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden shadow-sm hover:shadow-md transition group flex flex-col justify-between">
               <div>
                 <div class="relative h-48 bg-gray-100 overflow-hidden">
-                  <img src="${r.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                  <img src="${r.image \vert{}\vert{} '[https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80](https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80)'}" alt="${r.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                   <button onclick="toggleFavorite(event, '${r.id}')" class="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full shadow-sm backdrop-blur-sm transition">
                     <i data-lucide="heart" class="w-4 h-4 ${r.favorite ? 'fill-amber-500 text-amber-500' : 'text-gray-400'}"></i>
                   </button>
-                  <span class="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">${r.category || 'Generale'}</span>
-                </div>
-                <div class="p-5 space-y-3">
-                  <h3 class="font-serif-title font-bold text-lg text-gray-900 line-clamp-1 group-hover:text-brand-green transition">${r.title}</h3>
-                  <div class="flex items-center space-x-4 text-xs text-brand-muted">
-                    <span class="flex items-center space-x-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i> <span>Prep: ${r.prepTime || 'N/D'}</span></span>
-                    <span class="flex items-center space-x-1"><i data-lucide="flame" class="w-3.5 h-3.5 text-brand-terracotta"></i> <span>Cottura: ${r.cookTime || 'N/D'}</span></span>
-                  </div>
-                  <p class="text-xs text-brand-muted line-clamp-2">${r.ingredients.join(', ')}</p>
-                </div>
-              </div>
-              <div class="p-5 pt-0 border-t border-brand-border/50 flex items-center justify-between mt-4">
-                <button onclick="openRecipe('${r.id}')" class="text-xs font-semibold text-brand-green hover:underline flex items-center space-x-1">
-                  <span>Vedi Ricetta</span>
-                  <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                </button>
-                <button onclick="deleteRecipe('${r.id}')" class="text-gray-400 hover:text-red-500 transition">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-              </div>
-            </div>
-          `;
-        });
-      }
-      lucide.createIcons();
-    }
-
-    // CATEGORY FILTER
-    function filterCategory(cat) {
-      activeCategory = cat;
-      document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.className = 'cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-brand-muted hover:bg-gray-200';
-      });
-      event.target.closest('button').className = 'cat-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-brand-green text-white shadow-sm';
-      renderRecipes();
-    }
-
-    // TOGGLE FAVORITE
-    function toggleFavorite(e, id) {
-      e.stopPropagation();
-      const r = recipes.find(x => x.id === id);
-      if (r) {
-        r.favorite = !r.favorite;
-        saveRecipes();
-        renderRecipes();
-      }
-    }
-
-    // OPEN RECIPE MODAL
-    function openRecipe(id) {
-      const r = recipes.find(x => x.id === id);
-      if (!r) return;
-
-      const modal = document.getElementById('recipe-modal');
-      const content = document.getElementById('modal-content');
-
-      content.innerHTML = `
-        <div class="relative h-64 sm:h-80 w-full bg-gray-100">
-          <img src="${r.image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'}" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6 sm:p-8">
-            <div class="text-white space-y-2">
-              <span class="bg-brand-terracotta text-white text-[10px] font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">${r.category}</span>
-              <h2 class="text-2xl sm:text-3xl font-serif-title font-bold">${r.title}</h2>
-              <div class="flex items-center space-x-6 text-xs text-gray-200">
-                <span class="flex items-center space-x-1"><i data-lucide="clock" class="w-4 h-4"></i> <span>Prep: ${r.prepTime}</span></span>
-                <span class="flex items-center space-x-1"><i data-lucide="flame" class="w-4 h-4"></i> <span>Cottura: ${r.cookTime}</span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-6 sm:p-8 space-y-8">
-          <!-- INGREDIENTI -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-serif-title font-bold text-gray-900 border-b border-brand-border pb-2 flex items-center justify-between">
-              <span>Ingredienti</span>
-              <span class="text-xs text-brand-muted font-sans font-normal">(clicca per spuntare)</span>
-            </h3>
-            <ul class="space-y-2" id="ingredients-list">
-              ${r.ingredients.map(ing => `
-                <li class="flex items-start space-x-3 cursor-pointer group" onclick="this.classList.toggle('line-through'); this.classList.toggle('text-gray-400')">
-                  <input type="checkbox" class="mt-1 rounded border-gray-300 text-brand-green focus:ring-brand-green">
-                  <span class="text-sm text-gray-700 group-hover:text-gray-900">${ing}</span>
-                </li>
-              `).join('')}
-            </ul>
-          </div>
-
-          <!-- PROCEDIMENTO -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-serif-title font-bold text-gray-900 border-b border-brand-border pb-2">Procedimento</h3>
-            <ol class="space-y-4">
-              ${r.steps.map((step, idx) => `
-                <li class="flex space-x-4">
-                  <span class="flex-shrink-0 w-7 h-7 rounded-full bg-brand-green/10 text-brand-green font-bold text-xs flex items-center justify-center">${idx + 1}</span>
-                  <p class="text-sm text-gray-700 leading-relaxed pt-0.5">${step}</p>
-                </li>
-              `).join('')}
-            </ol>
-          </div>
-        </div>
-      `;
-
-      modal.classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function closeModal() {
-      document.getElementById('recipe-modal').classList.add('hidden');
-    }
-
-    // HANDLE IMPORT FROM WEBHOOK MAKE
-    async function handleImport(e) {
-      e.preventDefault();
-      const url = document.getElementById('import-url').value;
-      const loading = document.getElementById('import-loading');
-      const submitBtn = document.getElementById('btn-import-submit');
-
-      loading.classList.remove('hidden');
-      submitBtn.classList.add('hidden');
-
-      try {
-        let newRecipe;
-        
-        if (MAKE_WEBHOOK_URL) {
-          const res = await fetch(MAKE_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url })
-          });
-          
-          const rawText = await res.text();
-          try {
-            newRecipe = JSON.parse(rawText);
-          } catch (pErr) {
-            // Pulisce eventuali blocchi di codice markdown se presenti
-            const cleanText = rawText.replace(/```json/g, '').replace(/
