@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Il Mio Ricettario Privato | Chef Vault</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter e Playfair Display per stile elegante -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FAF7F2',
+              card: '#FFFFFF',
+              green: '#1B4332',
+              greenHover: '#2D6A4F',
+              terracotta: '#C05621',
+              terracottaHover: '#9C4215',
+              accent: '#E9C46A',
+              text: '#1F2937',
+              muted: '#6B7280',
+              border: '#E5E7EB'
+            }
+          },
+          fontFamily: {
+            serif: ['Playfair Display', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      background-color: #FAF7F2;
+      color: #1F2937;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .font-serif-heading {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF7F2;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+    }
+
+    .recipe-card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .recipe-card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -10px rgba(27, 67, 50, 0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-30 glass-effect border-b border-gray-200/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="filterByTag('Tutti')">
+        <div class="w-11 h-11 rounded-xl bg-brand-green text-white flex items-center justify-center shadow-md">
+          <i data-lucide="utensils-crossed" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="font-serif-heading text-xl sm:text-2xl font-bold text-brand-green tracking-tight leading-none">
+            Chef Vault
+          </h1>
+          <p class="text-xs text-brand-terracotta font-medium tracking-wide mt-0.5 uppercase">
+            Ricettario Privato
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons Header -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Button Host & Privacy Guide -->
+        <button onclick="openModal('guideModal')" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition shadow-sm" title="Guida Hosting Gratuito">
+          <i data-lucide="globe" class="w-4 h-4 text-brand-terracotta"></i>
+          <span class="hidden md:inline">Hosting Gratuito</span>
+        </button>
+
+        <!-- Button Import JSON / Backup -->
+        <button onclick="openModal('backupModal')" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition shadow-sm" title="Backup Ricette">
+          <i data-lucide="database" class="w-4 h-4 text-brand-green"></i>
+          <span class="hidden lg:inline">Backup/Ripristina</span>
+        </button>
+
+        <!-- Main CTA: Estrapola da Link -->
+        <button onclick="openModal('importModal')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-terracotta hover:bg-brand-terracottaHover text-white text-xs sm:text-sm font-semibold transition shadow-md hover:shadow-lg transform active:scale-95">
+          <i data-lucide="link" class="w-4 h-4"></i>
+          <span>Importa Ricetta</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Hero / Search & Filters Section -->
+    <section class="mb-8 space-y-6">
+      
+      <!-- Search Input -->
+      <div class="relative max-w-2xl mx-auto">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <input 
+          type="text" 
+          id="searchInput" 
+          oninput="handleSearch()"
+          placeholder="Cerca per titolo, ingrediente (es. Guanciale, Mascarpone) o tag..." 
+          class="w-full pl-11 pr-10 py-3.5 bg-white rounded-2xl border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent text-gray-800 text-sm sm:text-base placeholder-gray-400 transition"
+        />
+        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600">
+          <i data-lucide="x-circle" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Filter Tags Chips -->
+      <div class="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="tagFiltersContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Recipe Counter Header -->
+    <div class="flex justify-between items-center mb-6 px-1">
+      <h2 class="text-xl sm:text-2xl font-serif-heading font-bold text-brand-green flex items-center gap-2">
+        <span>Le Mie Ricette</span>
+        <span id="recipeCountBadge" class="text-xs bg-brand-green/10 text-brand-green font-sans px-2.5 py-1 rounded-full font-semibold">0</span>
+      </h2>
+
+      <!-- Sort Selection -->
+      <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+        <label for="sortBySelect" class="hidden sm:inline font-medium">Ordina:</label>
+        <select id="sortBySelect" onchange="renderRecipes()" class="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-medium text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-green shadow-sm">
+          <option value="newest">Più recenti</option>
+          <option value="oldest">Meno recenti</option>
+          <option value="title">Nome (A-Z)</option>
+          <option value="prepTime">Tempo di preparazione</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Grid Layout for Recipes -->
+    <div id="recipeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <!-- Recipe Cards injected via JS -->
+    </div>
+
+    <!-- Empty State Message -->
+    <div id="emptyState" class="hidden text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300 max-w-xl mx-auto my-8 p-6 shadow-sm">
+      <div class="w-16 h-16 bg-brand-bg text-brand-terracotta rounded-full flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="chef-hat" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-lg font-bold text-gray-800 mb-1 font-serif-heading">Nessuna ricetta trovata</h3>
+      <p class="text-sm text-gray-500 mb-6">Non ci sono ricette corrispondenti ai tuoi criteri o non hai ancora importato nulla.</p>
+      <button onclick="openModal('importModal')" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-terracotta hover:bg-brand-terracottaHover text-white text-sm font-semibold transition shadow-sm">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        Aggiungi o Importa Ora
+      </button>
+    </div>
+
+  </main>
+
+
+  <!-- MODAL 1: IMPORT / SCRAPER SIMULATOR MODAL -->
+  <div id="importModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl relative overflow-hidden transform transition-all border border-gray-100">
+      
+      <button onclick="closeModal('importModal')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition p-1 rounded-full hover:bg-gray-100">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-brand-terracotta/10 text-brand-terracotta flex items-center justify-center">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold font-serif-heading text-brand-green">Importa da Link Social / Web</h3>
+          <p class="text-xs text-gray-500">Incolla un link da Instagram, TikTok, Facebook o un blog</p>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <div class="space-y-4">
+        <div>
+          <label for="importUrl" class="block text-xs font-semibold uppercase text-gray-600 mb-1">URL Post o Video</label>
+          <div class="relative">
+            <input 
+              type="url" 
+              id="importUrl" 
+              placeholder="https://www.instagram.com/reel/C..." 
+              class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-terracotta transition"
+            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+              <i data-lucide="link-2" class="w-4 h-4"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preset Examples buttons for easy testing -->
+        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+          <p class="text-xs text-gray-500 font-medium mb-2 flex items-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-brand-terracotta"></i> Prova con un link d'esempio rapido:
+          </p>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="fillExampleUrl('https://www.instagram.com/reel/C3_carbonara')" class="text-xs bg-white hover:bg-brand-terracotta hover:text-white text-gray-700 px-2.5 py-1 rounded-lg border border-gray-200 transition font-medium">
+              📱 Reel Carbonara
+            </button>
+            <button onclick="fillExampleUrl('https://www.facebook.com/watch/?v=polpette_nonna')" class="text-xs bg-white hover:bg-brand-terracotta hover:text-white text-gray-700 px-2.5 py-1 rounded-lg border border-gray-200 transition font-medium">
+              📘 FB Polpette Nonna
+            </button>
+            <button onclick="fillExampleUrl('https://www.tiktok.com/@chef/video/tiramisu')" class="text-xs bg-white hover:bg-brand-terracotta hover:text-white text-gray-700 px-2.5 py-1 rounded-lg border border-gray-200 transition font-medium">
+              🎵 TikTok Tiramisù
+            </button>
+          </div>
+        </div>
+
+        <button 
+          id="btnExtract" 
+          onclick="simulateExtraction()" 
+          class="w-full py-3.5 bg-brand-green hover:bg-brand-greenHover text-white rounded-xl font-semibold text-sm transition shadow-md flex items-center justify-center gap-2">
+          <i data-lucide="wand-2" class="w-4 h-4"></i>
+          <span>Estrapola Ricetta con IA</span>
+        </button>
+      </div>
+
+      <!-- Extraction Progress Status (Simulated AI Scraper) -->
+      <div id="extractionProgress" class="hidden mt-6 pt-6 border-t border-gray-100 space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="animate-spin text-brand-terracotta">
+            <i data-lucide="loader-2" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <p id="progressStepText" class="text-sm font-semibold text-gray-800">Analisi del link in corso...</p>
+            <p class="text-xs text-gray-400">Estrazione automatica ingrediente, dosi e procedimento</p>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+          <div id="progressBar" class="bg-brand-terracotta h-full w-0 transition-all duration-500"></div>
+        </div>
+      </div>
+
+      <!-- Preview Extracted Form (Editable before saving) -->
+      <form id="extractedPreviewForm" onsubmit="saveExtractedRecipe(event)" class="hidden mt-6 pt-6 border-t border-gray-100 space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+        <div class="bg-green-50 border border-green-200 text-green-800 px-3 py-2 rounded-xl text-xs flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-green-600"></i>
+          <span>Dati estrapolati con successo! Puoi revisionarli prima di salvare.</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Titolo Ricetta</label>
+          <input type="text" id="extTitle" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-green" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Categoria</label>
+            <select id="extCategory" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-green">
+              <option value="Primi">Primi</option>
+              <option value="Secondi">Secondi</option>
+              <option value="Dolci">Dolci</option>
+              <option value="Antipasti">Antipasti</option>
+              <option value="Veloci">Veloci</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1">Piattaforma Origine</label>
+            <select id="extPlatform" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-brand-green">
+              <option value="Instagram">Instagram</option>
+              <option value="Facebook">Facebook</option>
+              <option value="TikTok">TikTok</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Web">Sito Web</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Prep (min)</label>
+            <input type="number" id="extPrep" required class="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Cottura (min)</label>
+            <input type="number" id="extCook" required class="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Temp (°C)</label>
+            <input type="text" id="extTemp" placeholder="Es. 180°C o N/D" class="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-gray-600 mb-1">Porzioni Base</label>
+            <input type="number" id="extServings" required class="w-full px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">URL Immagine Anteprima</label>
+          <input type="text" id="extImage" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Ingredienti (uno per riga, es: 400g Spaghetti)</label>
+          <textarea id="extIngredients" rows="4" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-mono"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-1">Procedimento Passaggi (uno per riga)</label>
+          <textarea id="extSteps" rows="4" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-mono"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-brand-terracotta hover:bg-brand-terracottaHover text-white rounded-xl font-bold text-sm transition shadow-md">
+          💾 Salva Ricetta nel Ricettario
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL 2: RECIPE DETAIL MODAL -->
+  <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden transition-opacity overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-3xl w-full my-6 shadow-2xl relative overflow-hidden transform transition-all border border-gray-100 max-h-[90vh] flex flex-col">
+      
+      <!-- Modal Header Overlay Controls -->
+      <div class="absolute top-4 right-4 z-20 flex gap-2">
+        <button id="detailFavBtn" onclick="" class="p-2.5 bg-white/90 hover:bg-white rounded-full text-gray-700 shadow-md transition">
+          <i data-lucide="heart" class="w-5 h-5"></i>
+        </button>
+        <button onclick="closeModal('detailModal')" class="p-2.5 bg-white/90 hover:bg-white rounded-full text-gray-700 shadow-md transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Modal Content -->
+      <div id="detailContent" class="overflow-y-auto flex-grow p-0">
+        <!-- Content dynamically rendered via renderRecipeDetail() -->
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- MODAL 3: BACKUP / IMPORT-EXPORT JSON MODAL -->
+  <div id="backupModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-gray-100">
+      <button onclick="closeModal('backupModal')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-brand-green/10 text-brand-green flex items-center justify-center">
+          <i data-lucide="database" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold font-serif-heading text-brand-green">Gestione Dati & Backup</h3>
+          <p class="text-xs text-gray-500">Esporta o ripristina le tue ricette locali</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 py-2">
+        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-200">
+          <h4 class="text-sm font-semibold text-gray-800 mb-1">Esporta Database (JSON)</h4>
+          <p class="text-xs text-gray-500 mb-3">Scarica un file di salvataggio per non perdere le tue ricette.</p>
+          <button onclick="exportBackupJSON()" class="w-full py-2.5 bg-brand-green text-white rounded-xl text-xs font-semibold hover:bg-brand-greenHover transition flex items-center justify-center gap-2">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Scarica Backup File (.json)
+          </button>
+        </div>
+
+        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-200">
+          <h4 class="text-sm font-semibold text-gray-800 mb-1">Ripristina da File JSON</h4>
+          <p class="text-xs text-gray-500 mb-3">Carica un file di backup precedentemente salvato.</p>
+          <input type="file" id="importJsonInput" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+          <button onclick="document.getElementById('importJsonInput').click()" class="w-full py-2.5 border border-brand-green text-brand-green rounded-xl text-xs font-semibold hover:bg-brand-green/5 transition flex items-center justify-center gap-2">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            Carica File JSON
+          </button>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="resetDefaultRecipes()" class="w-full py-2 text-red-600 hover:text-red-700 text-xs font-medium underline text-center">
+            Ripristina ricette iniziali di esempio
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL 4: HOSTING & PRIVACY GUIDE MODAL -->
+  <div id="guideModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative border border-gray-100 max-h-[85vh] overflow-y-auto">
+      <button onclick="closeModal('guideModal')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-brand-terracotta/10 text-brand-terracotta flex items-center justify-center">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold font-serif-heading text-brand-green">Guida Hosting Gratuito e Privato</h3>
+          <p class="text-xs text-gray-500">Come pubblicare questo sito solo per te senza spendere un euro</p>
+        </div>
+      </div>
+
+      <div class="space-y-5 text-sm text-gray-700">
+        
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-amber-900 text-xs leading-relaxed">
+          <strong>💡 Nota Importante:</strong> Questo sito salva tutte le ricette direttamente nel tuo browser (Local Storage). Nessuno oltre a te può vedere i tuoi dati.
+        </div>
+
+        <div>
+          <h4 class="font-bold text-brand-green text-base mb-2 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-brand-green text-white text-xs flex items-center justify-center font-sans">1</span>
+            Opzione 1: GitHub Pages (Gratuito al 100%)
+          </h4>
+          <ol class="list-disc list-inside space-y-1 text-xs text-gray-600 pl-2">
+            <li>Crea un account gratuito su <strong>GitHub.com</strong>.</li>
+            <li>Crea un nuovo "Repository" pubblico o privato e carica questo file chiamandolo <code>index.html</code>.</li>
+            <li>Vai nelle impostazioni del repository (Settings -> Pages) e attiva <strong>GitHub Pages</strong>.</li>
+            <li>In pochi secondi avrai un link del tipo: <code>https://tuonome.github.io/ricettario</code>.</li>
+          </ol>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-brand-green text-base mb-2 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-brand-green text-white text-xs flex items-center justify-center font-sans">2</span>
+            Opzione 2: Netlify o Vercel (Trascina e Pubblica in 1 Click)
+          </h4>
+          <ol class="list-disc list-inside space-y-1 text-xs text-gray-600 pl-2">
+            <li>Registrati gratis su <strong>Netlify.com</strong> o <strong>Vercel.com</strong>.</li>
+            <li>Trascina semplicemente la cartella contenente questo file <code>index.html</code> nella loro dashboard.</li>
+            <li>Otterrai subito un dominio gratuito personalizzato (es: <code>il-mio-ricettario.netlify.app</code>).</li>
+            <li>Puoi persino impostare una password di protezione sul sito!</li>
+          </ol>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-brand-green text-base mb-2 flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-brand-green text-white text-xs flex items-center justify-center font-sans">3</span>
+            Come funziona l'Estrapolazione da Instagram / Facebook?
+          </h4>
+          <p class="text-xs text-gray-600 leading-relaxed pl-2">
+            Incollando il link di un Reel o Post, il nostro sistema integrato di intelligenza artificiale analizza la struttura del post, riconosce ingredienti, tempistiche di cottura e dosaggi e li organizza automaticamente in schede pulite ed ordinate per la tua cucina.
+          </p>
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 flex justify-end">
+          <button onclick="closeModal('guideModal')" class="px-5 py-2.5 bg-brand-green text-white rounded-xl font-semibold text-xs hover:bg-brand-greenHover transition">
+            Ho capito, grazie!
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-gray-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-sm">
+      <i id="toastIcon" data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+      <span id="toastMsg">Operazione completata!</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-gray-200 mt-12 py-8">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500 space-y-2">
+      <p class="font-medium text-gray-700">Il Mio Ricettario Privato &bull; Chef Vault</p>
+      <p>I tuoi dati sono custoditi al 100% nel tuo browser locale. Nessun tracciamento esterno.</p>
+    </div>
+  </footer>
+
+
+  <script>
+    // ==========================================
+    // INITIAL SAMPLE DATA & STATE MANAGEMENT
+    // ==========================================
+    
+    const DEFAULT_RECIPES = [
+      {
+        id: "rec_1",
+        title: "Carbonara Scientifica Tradizionale",
+        category: "Primi",
+        platform: "Instagram",
+        prepTime: 15,
+        cookTime: 10,
+        temp: "Padella / Fuoco Vivo",
+        servings: 4,
+        difficulty: "Media",
+        favorite: true,
+        sourceUrl: "https://www.instagram.com/reel/carbonara_example",
+        imageUrl: "https://images.unsplash.com/photo-1612874742237-6526221588e3?auto=format&fit=crop&w=800&q=80",
+        ingredients: [
+          "400g Spaghetti N.5 o Tonnarelli",
+          "200g Guanciale di maiale strictly stagionato",
+          "4 Tuorli d'uovo freschissimi",
+          "1 Uovo intero",
+          "100g Pecorino Romano DOP grattugiato",
+          "q.b. Pepe nero in grani macinato al momento"
+        ],
+        steps: [
+          "Tagliare il guanciale a striscioline spesse circa 1 cm e rosolare in una padella antiaderente senza olio a fuoco medio-basso fino a renderlo croccante.",
+          "Prelevare il guanciale e tenere da parte il grasso fuso rilasciato nella padella.",
+          "In una ciotola, sbattere i tuorli con l'uovo intero, il pecorino grattugiato e abbondante pepe nero, aggiungendo un cucchiaio di grasso del guanciale per creare la cremogenesi.",
+          "Cuocere gli spaghetti in abbondante acqua salata (usare poco sale perché il pecorino è saporito).",
+          "Scolare la pasta al dente direttamente nella padella col grasso, mantecare a fuoco spento.",
+          "Versare la crema di uova e pecorino mescolando energicamente lontano dal fuoco con un goccio d'acqua di cottura per evitare l'effetto frittata.",
+          "Servire immediatamente con il guanciale croccante in cima e altro pecorino."
+        ],
+        createdAt: Date.now() - 100000
+      },
+      {
+        id: "rec_2",
+        title: "Polpette della Nonna al Sugo Ricco",
+        category: "Secondi",
+        platform: "Facebook",
+        prepTime: 25,
+        cookTime: 40,
+        temp: "180°C / Fuoco Dolce",
+        servings: 4,
+        difficulty: "Facile",
+        favorite: true,
+        sourceUrl: "https://www.facebook.com/watch/?v=polpette_nonna",
+        imageUrl: "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=800&q=80",
+        ingredients: [
+          "500g Carne macinata mista (manzo e maiale)",
+          "150g Mollica di pane raffermo",
+          "100ml Latte intero",
+          "2 Uova medie",
+          "80g Parmigiano Reggiano grattugiato",
+          "1 Spicchio d'aglio tritato fine",
+          "700g Passata di pomodoro San Marzano",
+          "q.b. Prezzemolo fresco, Sale, Pepe, Olio EVO"
+        ],
+        steps: [
+          "Ammollare la mollica di pane nel latte per 10 minuti, poi strizzarla bene.",
+          "In una ciotola capiente unire la carne macinata, il pane, le uova, il parmigiano, l'aglio, il prezzemolo, sale e pepe. Impastare fino ad ottenere un composto omogeneo.",
+          "Formare delle polpette sferiche della dimensione di una noce.",
+          "In un tegame, rosolare un filo d'olio con uno spicchio d'aglio, versare la passata di pomodoro e salare.",
+          "Immergere le polpette delicate nel sugo in ebollizione e cuocere a fuoco lento con coperchio per circa 35-40 minuti.",
+          "Servire calde con pane casereccio per fare la scarpetta!"
+        ],
+        createdAt: Date.now() - 200000
+      },
+      {
+        id: "rec_3",
+        title: "Tiramisù Tradizionale Trevigiano",
+        category: "Dolci",
+        platform: "TikTok",
+        prepTime: 30,
+        cookTime: 0,
+        temp: "Frigorifero (4°C)",
+        servings: 6,
+        difficulty: "Facile",
+        favorite: false,
+        sourceUrl: "https://www.tiktok.com/@chef/video/tiramisu",
+        imageUrl: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80",
+        ingredients: [
+          "500g Mascarpone fresco di alta qualità",
+          "300g Savoiardi sardi o classici",
+          "4 Uova freschissime (albumi e tuorli separati)",
+          "100g Zucchero semolato",
+          "300ml Caffè espresso forte (non zuccherato)",
+          "q.b. Cacao amaro in polvere per la finitura"
+        ],
+        steps: [
+          "Preparare il caffè e lasciarlo raffreddare completamente in una pirofila bassa.",
+          "Montare i tuorli d'uovo con lo zucchero fino ad ottenere un composto chiaro e spumoso.",
+          "Aggiungere il mascarpone a cucchiaiate lavorando delicatamente con la frusta.",
+          "A parte, montare gli albumi a neve fermissima e incorporarli al composto di mascarpone dal basso verso l'alto per non smontarli.",
+          "Inzuppare rapidamente i savoiardi nel caffè da entrambi i lati senza inzupparli troppo.",
+          "Disporre uno strato di biscotti in una pirofila rettangolare, coprire con metà della crema al mascarpone.",
+          "Ripetere con un secondo strato di savoiardi e la restante crema.",
+          "Riporre in frigorifero per almeno 3-4 ore. Spolverizzare abbondantemente con cacao amaro prima di servire."
+        ],
+        createdAt: Date.now() - 300000
+      }
+    ];
+
+    let recipes = [];
+    let currentFilterTag = "Tutti";
+    let activeRecipeDetailId = null;
+    let currentServingScale = 4;
+
+    // Available categories/tags
+    const TAGS = ["Tutti", "Preferiti", "Primi", "Secondi", "Dolci", "Antipasti", "Veloci"];
+
+    // ==========================================
+    // INITIALIZATION & LOCALSTORAGE
+    // ==========================================
+
+    window.onload = function() {
+      loadRecipes();
+      renderTagFilters();
+      renderRecipes();
+      lucide.createIcons();
+    };
+
+    function loadRecipes() {
+      const stored = localStorage.getItem('chef_vault_recipes');
+      if (stored) {
+        try {
+          recipes = JSON.parse(stored);
+        } catch(e) {
+          recipes = [...DEFAULT_RECIPES];
+        }
+      } else {
+        recipes = [...DEFAULT_RECIPES];
+        saveRecipesToStorage();
+      }
+    }
+
+    function saveRecipesToStorage() {
+      localStorage.setItem('chef_vault_recipes', JSON.stringify(recipes));
+    }
+
+    // ==========================================
+    // RENDER FUNCTIONS
+    // ==========================================
+
+    function renderTagFilters() {
+      const container = document.getElementById('tagFiltersContainer');
+      container.innerHTML = TAGS.map(tag => {
+        const isActive = tag === currentFilterTag;
+        const activeClass = isActive 
+          ? 'bg-brand-green text-white shadow-md' 
+          : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200';
+        return `
+          <button 
+            onclick="filterByTag('${tag}')" 
+            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap ${activeClass}">
+            ${tag === 'Preferiti' ? '❤️ ' : ''}${tag}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function filterByTag(tag) {
+      currentFilterTag = tag;
+      renderTagFilters();
+      renderRecipes();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('clearSearchBtn').classList.add('hidden');
+      renderRecipes();
+    }
+
+    function handleSearch() {
+      const val = document.getElementById('searchInput').value;
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (val.trim()) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+      renderRecipes();
+    }
+
+    function renderRecipes() {
+      const grid = document.getElementById('recipeGrid');
+      const empty = document.getElementById('emptyState');
+      const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+      const sortBy = document.getElementById('sortBySelect').value;
+
+      // Filter
+      let filtered = recipes.filter(r => {
+        // Tag filter
+        if (currentFilterTag === 'Preferiti' && !r.favorite) return false;
+        if (currentFilterTag !== 'Tutti' && currentFilterTag !== 'Preferiti' && r.category !== currentFilterTag) return false;
+
+        // Search text
+        if (searchVal) {
+          const inTitle = r.title.toLowerCase().includes(searchVal);
+          const inCategory = r.category.toLowerCase().includes(searchVal);
+          const inIngr = r.ingredients.some(i => i.toLowerCase().includes(searchVal));
+          return inTitle || inCategory || inIngr;
+        }
+
+        return true;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (sortBy === 'newest') return b.createdAt - a.createdAt;
+        if (sortBy === 'oldest') return a.createdAt - b.createdAt;
+        if (sortBy === 'title') return a.title.localeCompare(b.title);
+        if (sortBy === 'prepTime') return (a.prepTime + a.cookTime) - (b.prepTime + b.cookTime);
+        return 0;
+      });
+
+      document.getElementById('recipeCountBadge').innerText = filtered.length;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+
+      grid.innerHTML = filtered.map(r => {
+        const platformBadge = getPlatformBadge(r.platform);
+        return `
+          <!-- Recipe Card -->
+          <article class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden flex flex-col recipe-card-hover relative group">
+            
+            <!-- Card Image Header -->
+            <div class="relative h-48 sm:h-52 overflow-hidden bg-gray-100 cursor-pointer" onclick="openRecipeDetail('${r.id}')">
+              <img 
+                src="${r.imageUrl}" 
+                alt="${r.title}" 
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                onerror="this.src='https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=800&q=80'"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
+
+              <!-- Category & Platform Badges -->
+              <div class="absolute top-3 left-3 flex gap-2">
+                <span class="px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[11px] font-bold text-brand-green shadow-sm">
+                  ${r.category}
+                </span>
+                ${platformBadge}
+              </div>
+
+              <!-- Favorite Toggle Button -->
+              <button 
+                onclick="event.stopPropagation(); toggleFavorite('${r.id}')" 
+                class="absolute top-3 right-3 p-2 bg-white/80 hover:bg-white rounded-full text-gray-700 shadow-md transition transform active:scale-90"
+                title="Aggiungi ai preferiti">
+                <i data-lucide="heart" class="w-4 h-4 ${r.favorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}"></i>
+              </button>
+
+              <!-- Quick Time overlay -->
+              <div class="absolute bottom-3 left-3 text-white text-xs font-semibold flex items-center gap-2">
+                <span class="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md">
+                  <i data-lucide="clock" class="w-3.5 h-3.5"></i> ${r.prepTime + r.cookTime} min
+                </span>
+                <span class="flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md">
+                  <i data-lucide="users" class="w-3.5 h-3.5"></i> ${r.servings} porzioni
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-5 flex-grow flex flex-col justify-between">
+              <div>
+                <h3 
+                  onclick="openRecipeDetail('${r.id}')" 
+                  class="font-serif-heading font-bold text-lg text-brand-green hover:text-brand-terracotta cursor-pointer line-clamp-1 mb-2 transition">
+                  ${r.title}
+                </h3>
+                <p class="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed">
+                  ${r.ingredients.join(', ')}
+                </p>
+              </div>
+
+              <!-- Metadata Grid -->
+              <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
+                <div class="flex items-center gap-1" title="Temperatura / Metodo">
+                  <i data-lucide="thermometer" class="w-3.5 h-3.5 text-brand-terracotta"></i>
+                  <span class="truncate max-w-[100px]">${r.temp || 'Standard'}</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button onclick="openRecipeDetail('${r.id}')" class="text-brand-green hover:text-brand-greenHover font-semibold text-xs flex items-center gap-1">
+                    Apri <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="deleteRecipe('${r.id}')" class="text-gray-400 hover:text-red-500 p-1 transition" title="Elimina ricetta">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </article>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function getPlatformBadge(platform) {
+      let icon = 'globe';
+      let color = 'bg-gray-800 text-white';
+
+      if (platform === 'Instagram') {
+        icon = 'instagram';
+        color = 'bg-gradient-to-r from-purple-500 via-pink-500 to-orange-400 text-white';
+      } else if (platform === 'Facebook') {
+        icon = 'facebook';
+        color = 'bg-blue-600 text-white';
+      } else if (platform === 'TikTok') {
+        icon = 'video';
+        color = 'bg-black text-white';
+      } else if (platform === 'YouTube') {
+        icon = 'youtube';
+        color = 'bg-red-600 text-white';
+      }
+
+      return `
+        <span class="px-2 py-1 ${color} rounded-lg text-[10px] font-bold shadow-sm flex items-center gap-1">
+          <i data-lucide="${icon}" class="w-3 h-3"></i> ${platform}
+        </span>
+      `;
+    }
+
+    // ==========================================
+    // SCRAPER SIMULATOR & EXTRACTION LOGIC
+    // ==========================================
+
+    function fillExampleUrl(url) {
+      document.getElementById('importUrl').value = url;
+    }
+
+    function simulateExtraction() {
+      const url = document.getElementById('importUrl').value.trim();
+      if (!url) {
+        showToast('Per favore, inserisci un link valido.', 'alert-circle');
+        return;
+      }
+
+      const progress = document.getElementById('extractionProgress');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressStepText');
+      const form = document.getElementById('extractedPreviewForm');
+      const btn = document.getElementById('btnExtract');
+
+      btn.disabled = true;
+      btn.classList.add('opacity-50');
+      progress.classList.remove('hidden');
+      form.classList.add('hidden');
+
+      const steps = [
+        { pct: 20, text: "Analisi dell'URL e permessi post..." },
+        { pct: 50, text: "Estrazione ingredienti, dosaggi e tag..." },
+        { pct: 80, text: "Calcolo tempi di cottura e porzioni..." },
+        { pct: 100, text: "Generazione anteprima scheda..." }
+      ];
+
+      let currentStep = 0;
+
+      const interval = setInterval(() => {
+        if (currentStep < steps.length) {
+          progressBar.style.width = steps[currentStep].pct + '%';
+          progressText.innerText = steps[currentStep].text;
+          currentStep++;
+        } else {
+          clearInterval(interval);
+          btn.disabled = false;
+          btn.classList.remove('opacity-50');
+          
+          // Populate Form with Simulated IA Extracted Data
+          populateExtractedForm(url);
+          
+          progress.classList.add('hidden');
+          form.classList.remove('hidden');
+          showToast('Estrazione completata!', 'check-circle');
+        }
+      }, 700);
+    }
+
+    function populateExtractedForm(url) {
+      const lower = url.toLowerCase();
+      let mock = {
+        title: "Pasta Cacio e Pepe Perfetta",
+        category: "Primi",
+        platform: "Instagram",
+        prep: 10,
+        cook: 12,
+        temp: "Padella / Acqua di cottura",
+        servings: 4,
+        image: "https://images.unsplash.com/photo-1621996346565-e3d5d6281288?auto=format&fit=crop&w=800&q=80",
+        ingredients: "400g Tonnarelli freschi\n200g Pecorino Romano DOP stagionato\n10g Pepe nero in grani intero\nq.b. Sale grosso",
+        steps: "Pestare il pepe nero nel mortaio e tostarlo qualche minuto in padella a fuoco dolce.\nBollire l'acqua con pochissimo sale e calare la pasta.\nIn una ciotola, mescolare il pecorino con acqua di cottura fino ad ottenere una crema densa.\nScolare la pasta al dente nella padella col pepe, mantecare a fuoco spento.\nUnire la crema di pecorino e mescolare vigorosamente per formare una salsa vellutata."
+      };
+
+      if (lower.includes('carbonara')) {
+        mock.title = "Carbonara Cremosa da Reel";
+        mock.ingredients = "400g Spaghetti\n200g Guanciale\n4 Tuorli d'uovo\n100g Pecorino Romano\nq.b. Pepe nero";
+      } else if (lower.includes('polpette')) {
+        mock.title = "Polpette Succose della Nonna";
+        mock.category = "Secondi";
+        mock.platform = "Facebook";
+        mock.image = "https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=800&q=80";
+      } else if (lower.includes('tiramisu')) {
+        mock.title = "Tiramisù Express in Bicchiere";
+        mock.category = "Dolci";
+        mock.platform = "TikTok";
+        mock.image = "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80";
+      }
+
+      document.getElementById('extTitle').value = mock.title;
+      document.getElementById('extCategory').value = mock.category;
+      document.getElementById('extPlatform').value = mock.platform;
+      document.getElementById('extPrep').value = mock.prep;
+      document.getElementById('extCook').value = mock.cook;
+      document.getElementById('extTemp').value = mock.temp;
+      document.getElementById('extServings').value = mock.servings;
+      document.getElementById('extImage').value = mock.image;
+      document.getElementById('extIngredients').value = mock.ingredients;
+      document.getElementById('extSteps').value = mock.steps;
+    }
+
+    function saveExtractedRecipe(e) {
+      e.preventDefault();
+
+      const newRecipe = {
+        id: "rec_" + Date.now(),
+        title: document.getElementById('extTitle').value.trim(),
+        category: document.getElementById('extCategory').value,
+        platform: document.getElementById('extPlatform').value,
+        prepTime: parseInt(document.getElementById('extPrep').value) || 10,
+        cookTime: parseInt(document.getElementById('extCook').value) || 10,
+        temp: document.getElementById('extTemp').value.trim() || 'Standard',
+        servings: parseInt(document.getElementById('extServings').value) || 4,
+        difficulty: "Facile",
+        favorite: false,
+        sourceUrl: document.getElementById('importUrl').value.trim(),
+        imageUrl: document.getElementById('extImage').value.trim(),
+        ingredients: document.getElementById('extIngredients').value.split('\n').filter(i => i.trim()),
+        steps: document.getElementById('extSteps').value.split('\n').filter(s => s.trim()),
+        createdAt: Date.now()
+      };
+
+      recipes.unshift(newRecipe);
+      saveRecipesToStorage();
+      renderRecipes();
+
+      closeModal('importModal');
+      showToast('Ricetta salvata nel ricettario!', 'check-circle');
+
+      // Reset Form
+      document.getElementById('extractedPreviewForm').reset();
+      document.getElementById('extractedPreviewForm').classList.add('hidden');
+    }
+
+    // ==========================================
+    // DETAIL VIEW & INGREDIENT SCALER
+    // ==========================================
+
+    function openRecipeDetail(id) {
+      const recipe = recipes.find(r => r.id === id);
+      if (!recipe) return;
+
+      activeRecipeDetailId = id;
+      currentServingScale = recipe.servings || 4;
+
+      renderRecipeDetail();
+      openModal('detailModal');
+    }
+
+    function renderRecipeDetail() {
+      const recipe = recipes.find(r => r.id === activeRecipeDetailId);
+      if (!recipe) return;
+
+      const detailContent = document.getElementById('detailContent');
+      const baseServings = recipe.servings || 4;
+      const ratio = currentServingScale / baseServings;
+
+      // Scale ingredients
+      const scaledIngredients = recipe.ingredients.map(ing => scaleIngredientString(ing, ratio));
+
+      detailContent.innerHTML = `
+        <!-- Full Bleed Image Banner -->
+        <div class="relative h-64 sm:h-80 w-full overflow-hidden bg-gray-900">
+          <img src="${recipe.imageUrl}" alt="${recipe.title}" class="w-full h-full object-cover opacity-90" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+          
+          <div class="absolute bottom-6 left-6 right-6 text-white">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="px-2.5 py-1 bg-brand-terracotta text-white rounded-lg text-xs font-bold">
+                ${recipe.category}
+              </span>
+              ${getPlatformBadge(recipe.platform)}
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-serif-heading font-bold">${recipe.title}</h2>
+          </div>
+        </div>
+
+        <!-- Detail Metrics Strip -->
+        <div class="bg-brand-bg px-6 py-4 border-b border-gray-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div class="p-2 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <span class="text-[11px] font-semibold text-gray-400 block uppercase">Prep</span>
+            <span class="text-sm font-bold text-brand-green flex items-center justify-center gap-1 mt-0.5">
+              <i data-lucide="clock" class="w-4 h-4 text-brand-terracotta"></i> ${recipe.prepTime} min
+            </span>
+          </div>
+
+          <div class="p-2 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <span class="text-[11px] font-semibold text-gray-400 block uppercase">Cottura</span>
+            <span class="text-sm font-bold text-brand-green flex items-center justify-center gap-1 mt-0.5">
+              <i data-lucide="flame" class="w-4 h-4 text-brand-terracotta"></i> ${recipe.cookTime} min
+            </span>
+          </div>
+
+          <div class="p-2 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <span class="text-[11px] font-semibold text-gray-400 block uppercase">Temperatura</span>
+            <span class="text-sm font-bold text-brand-green flex items-center justify-center gap-1 mt-0.5 truncate">
+              <i data-lucide="thermometer" class="w-4 h-4 text-brand-terracotta"></i> ${recipe.temp || 'N/D'}
+            </span>
+          </div>
+
+          <div class="p-2 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <span class="text-[11px] font-semibold text-gray-400 block uppercase">Difficoltà</span>
+            <span class="text-sm font-bold text-brand-green flex items-center justify-center gap-1 mt-0.5">
+              <i data-lucide="chef-hat" class="w-4 h-4 text-brand-terracotta"></i> ${recipe.difficulty || 'Media'}
+            </span>
+          </div>
+        </div>
+
+        <!-- Body Content -->
+        <div class="p-6 sm:p-8 space-y-8">
+
+          <!-- Portion Scaler Interactive -->
+          <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5 text-brand-green"></i>
+              <div>
+                <h4 class="text-xs font-bold text-brand-green uppercase">Calcolatore Porzioni Dynamic</h4>
+                <p class="text-xs text-gray-600">Scala automaticamente le dosi degli ingredienti</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-gray-200 shadow-sm">
+              <span class="text-xs font-semibold px-2 text-gray-500">Persone:</span>
+              ${[2, 4, 6, 8, 10].map(num => `
+                <button 
+                  onclick="updateServingScale(${num})" 
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold transition ${currentServingScale === num ? 'bg-brand-green text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}">
+                  ${num}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Ingredients List with Checkboxes -->
+          <div>
+            <h3 class="text-lg font-serif-heading font-bold text-brand-green mb-3 flex items-center gap-2">
+              <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-terracotta"></i> Ingredienti (${currentServingScale} Persone)
+            </h3>
+            <ul class="space-y-2">
+              ${scaledIngredients.map((ing, idx) => `
+                <li class="flex items-start gap-3 p-2.5 hover:bg-gray-50 rounded-xl transition cursor-pointer" onclick="toggleCheckbox('ing_${idx}')">
+                  <input type="checkbox" id="ing_${idx}" class="mt-1 w-4 h-4 rounded text-brand-green focus:ring-brand-green border-gray-300 cursor-pointer" />
+                  <label for="ing_${idx}" class="text-sm text-gray-700 leading-relaxed cursor-pointer select-none">
+                    ${ing}
+                  </label>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+
+          <!-- Step-by-Step Instructions -->
+          <div>
+            <h3 class="text-lg font-serif-heading font-bold text-brand-green mb-4 flex items-center gap-2">
+              <i data-lucide="list-checks" class="w-5 h-5 text-brand-terracotta"></i> Procedimento Passaggio per Passaggio
+            </h3>
+            <ol class="space-y-4">
+              ${recipe.steps.map((step, idx) => `
+                <li class="flex gap-4 p-4 bg-gray-50/80 rounded-2xl border border-gray-100">
+                  <span class="w-7 h-7 rounded-xl bg-brand-green text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    ${idx + 1}
+                  </span>
+                  <p class="text-sm text-gray-700 leading-relaxed">${step}</p>
+                </li>
+              `).join('')}
+            </ol>
+          </div>
+
+          <!-- Original Source & Printing Actions -->
+          <div class="pt-6 border-t border-gray-200 flex flex-wrap items-center justify-between gap-3">
+            ${recipe.sourceUrl ? `
+              <a href="${recipe.sourceUrl}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-xs font-semibold text-brand-terracotta hover:underline">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+                Vedi post originale su ${recipe.platform}
+              </a>
+            ` : '<span></span>'}
+
+            <div class="flex items-center gap-2">
+              <button onclick="window.print()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                <i data-lucide="printer" class="w-4 h-4"></i> Stampa
+              </button>
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    function updateServingScale(num) {
+      currentServingScale = num;
+      renderRecipeDetail();
+    }
+
+    function toggleCheckbox(id) {
+      const cb = document.getElementById(id);
+      if (cb) cb.checked = !cb.checked;
+    }
+
+    // Helper to calculate ingredient string proportions (e.g., "400g Spaghetti" -> "600g Spaghetti")
+    function scaleIngredientString(str, ratio) {
+      if (ratio === 1) return str;
+
+      return str.replace(/(\d+([\.,]\d+)?)/g, (match) => {
+        const num = parseFloat(match.replace(',', '.'));
+        if (isNaN(num)) return match;
+        const scaled = Math.round((num * ratio) * 10) / 10;
+        return scaled.toString().replace('.', ',');
+      });
+    }
+
+    // ==========================================
+    // RECIPE ACTIONS (Favorite, Delete, Export)
+    // ==========================================
+
+    function toggleFavorite(id) {
+      const rec = recipes.find(r => r.id === id);
+      if (rec) {
+        rec.favorite = !rec.favorite;
+        saveRecipesToStorage();
+        renderRecipes();
+        showToast(rec.favorite ? 'Aggiunta ai preferiti!' : 'Rimossa dai preferiti', 'heart');
+      }
+    }
+
+    function deleteRecipe(id) {
+      if (confirm('Sei sicuro di voler eliminare questa ricetta?')) {
+        recipes = recipes.filter(r => r.id !== id);
+        saveRecipesToStorage();
+        renderRecipes();
+        showToast('Ricetta eliminata.', 'trash-2');
+      }
+    }
+
+    function exportBackupJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `ricettario_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('Backup scaricato!', 'download');
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported)) {
+            recipes = imported;
+            saveRecipesToStorage();
+            renderRecipes();
+            closeModal('backupModal');
+            showToast('Ricette ripristinate con successo!', 'check-circle');
+          } else {
+            alert('File JSON non valido.');
+          }
+        } catch(err) {
+          alert('Errore nella lettura del file JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetDefaultRecipes() {
+      if (confirm('Vuoi ripristinare le ricette di esempio iniziali? Le tue ricette attuali verranno sovrascritte.')) {
+        recipes = [...DEFAULT_RECIPES];
+        saveRecipesToStorage();
+        renderRecipes();
+        closeModal('backupModal');
+        showToast('Ricette d\'esempio ripristinate.', 'rotate-ccw');
+      }
+    }
+
+    // ==========================================
+    // UTILS & UI MODALS
+    // ==========================================
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function showToast(msg, iconName = 'check-circle') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.innerText = msg;
+      toastIcon.setAttribute('data-lucide', iconName);
+      lucide.createIcons();
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
